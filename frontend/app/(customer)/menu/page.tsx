@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getCategories, getProducts } from "@/lib/api/catalog";
 import { ProductCard } from "@/components/customer/ProductCard";
+import { CartIcon } from "@/components/customer/CartIcon";
 import { CategoryFilter } from "./CategoryFilter";
 
 interface MenuPageProps {
@@ -34,7 +35,8 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
         <Link href="/" className="text-muted-foreground hover:text-foreground">
           ←
         </Link>
-        <h1 className="text-base font-bold">Menu</h1>
+        <h1 className="text-base font-bold flex-1">Menu</h1>
+        <CartIcon />
       </header>
 
       {/* Category filter */}

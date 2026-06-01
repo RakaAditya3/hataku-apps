@@ -9,6 +9,7 @@ export async function middleware(req: NextRequest) {
   const isPublic =
     pathname === "/" ||
     pathname.startsWith("/menu") ||
+    pathname.startsWith("/cart") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next/") ||

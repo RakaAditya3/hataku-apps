@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth/config";
 import { getProducts } from "@/lib/api/catalog";
 import { getMe } from "@/lib/api/auth";
 import { ProductCard } from "@/components/customer/ProductCard";
+import { CartIcon } from "@/components/customer/CartIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatRupiah } from "@/lib/utils/format";
@@ -38,6 +39,7 @@ export default async function HomePage() {
           </span>
         </div>
         <div className="flex items-center gap-3">
+          <CartIcon />
           {session?.user ? (
             <>
               {user && (
