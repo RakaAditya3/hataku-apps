@@ -7,6 +7,8 @@ export async function middleware(req: NextRequest) {
 
   // Public paths — skip all checks
   const isPublic =
+    pathname === "/" ||
+    pathname.startsWith("/menu") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next/") ||
