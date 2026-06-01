@@ -98,3 +98,52 @@ export type AdminUser = {
   email: string;
   role: 'admin' | 'cashier';
 };
+
+export type AdminOptionGroup = {
+  id: number;
+  name: string;
+  is_required: boolean;
+  default_min_select: number;
+  default_max_select: number;
+  min_select: number;
+  max_select: number;
+};
+
+export type AdminProduct = {
+  id: number;
+  name: string;
+  description: string | null;
+  price: number;
+  photo_url: string | null;
+  is_available: boolean;
+  is_deleted: boolean;
+  sort_order: number;
+  daily_stock_limit: number | null;
+  category: Category;
+  option_groups: AdminOptionGroup[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type AdminCategory = {
+  id: number;
+  name: string;
+  sort_order: number;
+  is_active: boolean;
+  is_deleted: boolean;
+  products_count: number;
+};
+
+export type CreateProductPayload = {
+  name: string;
+  category_id: number;
+  description?: string;
+  price: number;
+  photo_url?: string;
+  is_available?: boolean;
+  sort_order?: number;
+  option_group_ids?: number[];
+  option_group_overrides?: { option_group_id: number; min_select: number; max_select: number }[];
+};
+
+export type UpdateProductPayload = Partial<CreateProductPayload>;

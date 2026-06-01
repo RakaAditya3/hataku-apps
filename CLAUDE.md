@@ -790,8 +790,8 @@ docker compose exec frontend npm run dev
 - [x] Order management (scan→in_progress, mark done, admin cancel)
 - [x] TierService::checkAndUpgrade + OrderService.scan/markDone/adminCancel
 - [x] PointTransaction model + TierBenefit model
-- [ ] Product management (CRUD + toggle availability)
-- [ ] Category management
+- [x] Product management (CRUD + toggle availability)
+- [x] Category management
 - [ ] Option groups + items management
 - [ ] Customer list + detail
 
@@ -888,5 +888,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 ---
 
 
-*Last updated: Sprint 3 Tahap 1 complete — Admin Auth + Scan QR + Order Management + Loyalty Point Earn*
-*Next milestone: Sprint 3 Tahap 2 — Product management + Category management + Customer list*
+*Last updated: Sprint 3 Tahap 2 complete — Product management (CRUD + toggle) + Category management*
+*Next milestone: Sprint 3 Tahap 3 — Customer list + detail + Option groups management*

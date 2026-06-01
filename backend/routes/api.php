@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\AdminAuthController;
+use App\Http\Controllers\Api\AdminCategoryController;
 use App\Http\Controllers\Api\AdminOrderController;
+use App\Http\Controllers\Api\AdminProductController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\OrderController;
@@ -41,5 +43,19 @@ Route::prefix('admin')->group(function () {
         Route::post('/orders/{code}/scan', [AdminOrderController::class, 'scan']);
         Route::post('/orders/{code}/done', [AdminOrderController::class, 'done']);
         Route::post('/orders/{code}/cancel', [AdminOrderController::class, 'cancel']);
+
+        // Products
+        Route::get('/products', [AdminProductController::class, 'index']);
+        Route::get('/products/{id}', [AdminProductController::class, 'show']);
+        Route::post('/products', [AdminProductController::class, 'store']);
+        Route::put('/products/{id}', [AdminProductController::class, 'update']);
+        Route::delete('/products/{id}', [AdminProductController::class, 'destroy']);
+        Route::post('/products/{id}/toggle', [AdminProductController::class, 'toggle']);
+
+        // Categories
+        Route::get('/categories', [AdminCategoryController::class, 'index']);
+        Route::post('/categories', [AdminCategoryController::class, 'store']);
+        Route::put('/categories/{id}', [AdminCategoryController::class, 'update']);
+        Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy']);
     });
 });
