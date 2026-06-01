@@ -489,6 +489,19 @@ Alasan: harga/nama berubah kapan saja, tapi history transaksi harus reflect kond
 **JANGAN PERNAH delete:**
 - orders, point_transactions, redeemed_rewards (data finansial/audit)
 
+### 9. Order Code Generation
+- Format: HTK-{YYYYMMDD}-{counter 4 digit}
+- Counter dihitung dengan: WHERE order_code LIKE 'HTK-{dateStr}-%'
+  JANGAN pakai whereBetween dengan UTC timestamp — tidak reliable untuk timezone Asia/Jakarta
+- Counter reset tiap hari (natural karena dateStr berubah)
+- Timezone SELALU Asia/Jakarta untuk dateStr
+
+### 10. Point Redemption Rate
+- 100 point = Rp 5.000 diskon
+- Formula: points_value = floor(points_to_redeem / 100) * 5000
+- points_to_redeem harus kelipatan 100 (validasi di FormRequest)
+- available_points = point_balance - point_reserved
+
 ---
 
 ## Konvensi Coding
@@ -872,5 +885,6 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 
 ---
 
-*Last updated: Sprint 2 tahap 4 complete — checkout + order creation + QR generation + order history*
-*Next milestone: Sprint 3 — Admin Panel (login + scan QR + order management)*
+
+*Last updated: Sprint 2 Complete — Customer Core selesai*
+*Next milestone: Sprint 3 — Admin Panel (login + scan QR + order management + product management)*
