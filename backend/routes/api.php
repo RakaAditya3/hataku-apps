@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\Api\AdminCategoryController;
+use App\Http\Controllers\Api\AdminCustomerController;
 use App\Http\Controllers\Api\AdminOrderController;
 use App\Http\Controllers\Api\AdminProductController;
 use App\Http\Controllers\Api\AuthController;
@@ -51,6 +52,10 @@ Route::prefix('admin')->group(function () {
         Route::put('/products/{id}', [AdminProductController::class, 'update']);
         Route::delete('/products/{id}', [AdminProductController::class, 'destroy']);
         Route::post('/products/{id}/toggle', [AdminProductController::class, 'toggle']);
+
+        // Customers
+        Route::get('/customers', [AdminCustomerController::class, 'index']);
+        Route::get('/customers/{id}', [AdminCustomerController::class, 'show']);
 
         // Categories
         Route::get('/categories', [AdminCategoryController::class, 'index']);

@@ -793,7 +793,7 @@ docker compose exec frontend npm run dev
 - [x] Product management (CRUD + toggle availability)
 - [x] Category management
 - [ ] Option groups + items management
-- [ ] Customer list + detail
+- [x] Customer list + detail
 
 **Sprint 4 — Loyalty**
 - [ ] Point earn on order done + tier bonus
@@ -888,5 +888,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 ---
 
 
-*Last updated: Sprint 3 Tahap 2 complete — Product management (CRUD + toggle) + Category management*
-*Next milestone: Sprint 3 Tahap 3 — Customer list + detail + Option groups management*
+*Last updated: Sprint 3 Tahap 3 complete — Customer management (list + detail) + ProductSeeder (23 produk)*
+*Next milestone: Sprint 3 Tahap 4 — Option groups + items management (admin panel)*

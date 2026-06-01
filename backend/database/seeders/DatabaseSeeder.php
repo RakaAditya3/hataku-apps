@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             OptionItemSeeder::class,
             TierBenefitSeeder::class,
             AdminUserSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

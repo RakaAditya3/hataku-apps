@@ -147,3 +147,34 @@ export type CreateProductPayload = {
 };
 
 export type UpdateProductPayload = Partial<CreateProductPayload>;
+
+export type CustomerTier = 'bamboo' | 'jade' | 'imperial' | 'dragon';
+
+export type AdminCustomer = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  tier: CustomerTier;
+  point_balance: number;
+  valid_transaction_count: number;
+  current_streak: number;
+  referral_code: string | null;
+  created_at: string;
+};
+
+export type PointTransaction = {
+  id: number;
+  type: 'earn' | 'redeem' | 'refund' | 'referral' | 'checkin' | 'adjustment';
+  amount: number;
+  balance_after: number;
+  note: string | null;
+  order_code: string | null;
+  created_at: string;
+};
+
+export type AdminCustomerDetail = AdminCustomer & {
+  avatar_url: string | null;
+  recent_orders: Order[];
+  recent_point_transactions: PointTransaction[];
+};
