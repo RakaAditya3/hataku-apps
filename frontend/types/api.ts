@@ -91,3 +91,10 @@ export type CreateOrderPayload = {
   points_to_redeem?: number;
   reward_id?: number;
 };
+
+export type AdminUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: 'admin' | 'cashier';
+};

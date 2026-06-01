@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\AdminAuthController;
+use App\Http\Controllers\Api\AdminOrderController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
 // Public catalog
@@ -23,4 +26,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{code}', [OrderController::class, 'show']);
     Route::delete('/orders/{code}', [OrderController::class, 'cancel']);
+});
+
+// Admin
+Route::prefix('admin')->group(function () {
+    Route::post('/login', [AdminAuthController::class, 'login']);
+
+    Route::middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
+        Route::post('/logout', [AdminAuthController::class, 'logout']);
+        Route::get('/me', [AdminAuthController::class, 'me']);
+
+        Route::get('/orders', [AdminOrderController::class, 'index']);
+        Route::get('/orders/{code}', [AdminOrderController::class, 'show']);
+        Route::post('/orders/{code}/scan', [AdminOrderController::class, 'scan']);
+        Route::post('/orders/{code}/done', [AdminOrderController::class, 'done']);
+        Route::post('/orders/{code}/cancel', [AdminOrderController::class, 'cancel']);
+    });
 });

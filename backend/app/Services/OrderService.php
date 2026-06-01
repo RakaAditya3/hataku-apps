@@ -4,15 +4,20 @@ namespace App\Services;
 
 use App\Models\OptionItem;
 use App\Models\Order;
+use App\Models\PointTransaction;
 use App\Models\Product;
 use App\Models\Promo;
 use App\Models\Reward;
+use App\Models\TierBenefit;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
+    public function __construct(private TierService $tierService) {}
+
+
     public function create(User $user, array $data): Order
     {
         return DB::transaction(function () use ($user, $data) {
@@ -209,5 +214,120 @@ class OrderService
         }
 
         return $order->fresh(['items.options', 'user']);
+    }
+
+    public function scan(Order $order): Order
+    {
+        if ($order->status !== 'pending') {
+            throw new \InvalidArgumentException('Hanya pesanan dengan status pending yang dapat di-scan');
+        }
+
+        return DB::transaction(function () use ($order) {
+            $user = $order->user;
+
+            $order->update([
+                'status'  => 'in_progress',
+                'paid_at' => now(),
+            ]);
+
+            // Deduct reserved points from balance
+            if ($order->points_redeemed > 0) {
+                $user->decrement('point_balance', $order->points_redeemed);
+                $user->decrement('point_reserved', $order->points_redeemed);
+            }
+
+            return $order->fresh(['items.options', 'user']);
+        });
+    }
+
+    public function markDone(Order $order): Order
+    {
+        if ($order->status !== 'in_progress') {
+            throw new \InvalidArgumentException('Hanya pesanan in_progress yang dapat ditandai selesai');
+        }
+
+        return DB::transaction(function () use ($order) {
+            $user = $order->user;
+
+            // Calculate points_earned with tier bonus
+            $tierBonus = TierBenefit::where('tier', $user->tier)
+                ->where('benefit_type', 'point_bonus')
+                ->where('is_active', true)
+                ->value('bonus_percent') ?? 0;
+
+            $basePoints   = (int) floor($order->total / 1000);
+            $pointsEarned = (int) floor($basePoints * (1 + $tierBonus / 100));
+
+            $isValid = $order->total >= 25000;
+
+            $order->update([
+                'status'               => 'done',
+                'done_at'              => now(),
+                'points_earned'        => $pointsEarned,
+                'is_valid_transaction' => $isValid,
+            ]);
+
+            // Credit points to user
+            if ($pointsEarned > 0) {
+                $newBalance = $user->point_balance + $pointsEarned;
+                $user->update(['point_balance' => $newBalance]);
+
+                PointTransaction::create([
+                    'user_id'       => $user->id,
+                    'order_id'      => $order->id,
+                    'type'          => 'earn',
+                    'amount'        => $pointsEarned,
+                    'balance_after' => $newBalance,
+                    'note'          => "Earn dari order {$order->order_code}",
+                ]);
+            }
+
+            if ($isValid) {
+                $user->increment('valid_transaction_count');
+                $user->refresh();
+                $this->tierService->checkAndUpgrade($user);
+            }
+
+            return $order->fresh(['items.options', 'user']);
+        });
+    }
+
+    public function adminCancel(Order $order): Order
+    {
+        $allowedStatuses = ['pending', 'paid', 'in_progress'];
+        $originalStatus  = $order->status;
+
+        if (!in_array($originalStatus, $allowedStatuses)) {
+            throw new \InvalidArgumentException('Pesanan tidak dapat dibatalkan pada status ini');
+        }
+
+        return DB::transaction(function () use ($order, $originalStatus) {
+            $user = $order->user;
+
+            $order->update([
+                'status'       => 'cancelled',
+                'cancelled_at' => now(),
+            ]);
+
+            if ($originalStatus === 'pending' && $order->points_redeemed > 0) {
+                // Points not yet deducted from balance, just release the reservation
+                $user->decrement('point_reserved', $order->points_redeemed);
+            } elseif (in_array($originalStatus, ['paid', 'in_progress']) && $order->points_redeemed > 0) {
+                // Points were already deducted, refund to balance
+                $newBalance = $user->point_balance + $order->points_redeemed;
+                $user->update(['point_balance' => $newBalance]);
+
+                PointTransaction::create([
+                    'user_id'       => $user->id,
+                    'order_id'      => $order->id,
+                    'type'          => 'refund',
+                    'amount'        => $order->points_redeemed,
+                    'balance_after' => $newBalance,
+                    'note'          => "Refund point dari order {$order->order_code} yang dibatalkan",
+                ]);
+            }
+
+            return $order->fresh(['items.options', 'user']);
+        });
     }
 }

@@ -785,9 +785,11 @@ docker compose exec frontend npm run dev
 - [x] Order history customer
 
 **Sprint 3 — Admin Panel**
-- [ ] Admin login (Sanctum)
-- [ ] Scan QR page (camera + manual input)
-- [ ] Order management (paid, in_progress, done)
+- [x] Admin login (Sanctum) — AdminUser model, AdminMiddleware, AdminAuthController
+- [x] Scan QR page (camera via @zxing/browser + manual input)
+- [x] Order management (scan→in_progress, mark done, admin cancel)
+- [x] TierService::checkAndUpgrade + OrderService.scan/markDone/adminCancel
+- [x] PointTransaction model + TierBenefit model
 - [ ] Product management (CRUD + toggle availability)
 - [ ] Category management
 - [ ] Option groups + items management
@@ -886,5 +888,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 ---
 
 
-*Last updated: Sprint 2 Complete — Customer Core selesai*
-*Next milestone: Sprint 3 — Admin Panel (login + scan QR + order management + product management)*
+*Last updated: Sprint 3 Tahap 1 complete — Admin Auth + Scan QR + Order Management + Loyalty Point Earn*
+*Next milestone: Sprint 3 Tahap 2 — Product management + Category management + Customer list*
