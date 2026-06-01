@@ -766,10 +766,10 @@ docker compose exec frontend npm run dev
 - [x] Menu/katalog (per kategori + tab filter + ProductCard + CartIcon)
 - [x] Product detail (saus radio + topping checkbox + qty selector + validasi min_select)
 - [x] Cart (zustand store + list item + hapus + update qty + subtotal)
-- [ ] Checkout (order_type dine_in/takeaway, promo code, point redeem)
-- [ ] Order creation + QR generation (backend + frontend)
-- [ ] Order detail page dengan QR display
-- [ ] Order history customer
+- [x] Checkout (order_type dine_in/takeaway, promo code, point redeem)
+- [x] Order creation + QR generation (backend + frontend)
+- [x] Order detail page dengan QR display
+- [x] Order history customer
 
 **Sprint 3 — Admin Panel**
 - [ ] Admin login (Sanctum)
@@ -872,5 +872,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 
 ---
 
-*Last updated: Sprint 2 tahap 3 complete — product detail + cart*
-*Next milestone: Sprint 2 tahap 4 — Checkout + Order Creation + QR Generation*
+*Last updated: Sprint 2 tahap 4 complete — checkout + order creation + QR generation + order history*
+*Next milestone: Sprint 3 — Admin Panel (login + scan QR + order management)*
