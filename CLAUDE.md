@@ -731,7 +731,17 @@ docker compose exec backend php artisan tinker
 # NPM
 docker compose exec frontend npm install
 docker compose exec frontend npm run dev
+
+
 ```
+### Cart State (Zustand v5)
+
+- Cart state HANYA di client (zustand), tidak persist ke backend sampai checkout
+- `CartItem` wajib include snapshot: productName, productPrice, optionGroupName, optionName
+- `removeItem(index)` dan `updateQuantity(index, qty)` pakai index (bukan productId)
+  → aman untuk produk yang sama dengan pilihan saus berbeda di cart
+- `totalItems` dan `totalPrice` recompute setiap mutation (derived state)
+- Store di `frontend/lib/store/cart.ts`
 
 ---
 
@@ -751,11 +761,13 @@ docker compose exec frontend npm run dev
 - [x] NextAuth v4 + Google Provider (config + route handler + types)
 
 **Sprint 2 — Customer Core**
-- [ ] Auth flow customer (Google login + isi phone)
-- [ ] Home page (banner + featured products)
-- [ ] Menu/katalog (per kategori, dengan saus + topping selection)
-- [ ] Cart + checkout (tanpa payment, bayar di tempat)
-- [ ] Order creation + QR generation
+- [x] Auth flow customer (Google login + isi phone) — NextAuth Google + /complete-profile
+- [x] Home page (banner + featured products + CartIcon)
+- [x] Menu/katalog (per kategori + tab filter + ProductCard + CartIcon)
+- [x] Product detail (saus radio + topping checkbox + qty selector + validasi min_select)
+- [x] Cart (zustand store + list item + hapus + update qty + subtotal)
+- [ ] Checkout (order_type dine_in/takeaway, promo code, point redeem)
+- [ ] Order creation + QR generation (backend + frontend)
 - [ ] Order detail page dengan QR display
 - [ ] Order history customer
 
@@ -816,6 +828,8 @@ docker compose exec frontend npm run dev
 13. **JANGAN ubah snapshot field** di order_items, order_item_options, point_transactions setelah created
 14. **JANGAN naik/turun tier manual** — harus via TierService::checkAndUpgrade()
 15. **JANGAN reference price live** di order display — selalu pakai snapshot `product_price`
+16. JANGAN persist cart ke backend sebelum user klik "Buat Pesanan" di checkout
+17. JANGAN pakai productId saja sebagai key di cart — pakai index karena produk sama bisa punya pilihan saus berbeda
 
 ---
 
@@ -858,5 +872,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 
 ---
 
-*Last updated: Sprint 1 Complete — semua foundation selesai*
-*Next milestone: Sprint 2 — Customer Core (auth flow + home + katalog + cart + checkout + QR)*
+*Last updated: Sprint 2 tahap 3 complete — product detail + cart*
+*Next milestone: Sprint 2 tahap 4 — Checkout + Order Creation + QR Generation*
