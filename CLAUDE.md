@@ -857,6 +857,16 @@ docker compose exec frontend npm run dev
 - **POS terpisah:** Kasir Pintar Pro (untuk struk fisik, tidak ada integrasi)
 - **Jam operasional toko:** 15:00 – 21:00 (sementara)
 
+### Produk Live (23 produk):
+- Original Series: Regular (Rp22.000), Large (Rp38.000), Family (Rp52.000)
+- Mozza Series: Regular (Rp25.000), Large (Rp42.000), Family (Rp58.000)
+- Mix Series: Regular (Rp27.000, topping min=3 max=3), Large (Rp45.000, min=2 max=4), Family (Rp62.000, min=4 max=4)
+- Katsuo Series: Regular (Rp25.000), Large (Rp42.000), Family (Rp58.000)
+- Dimsum: Ayam 10pcs (Rp28.000), Udang 10pcs (Rp32.000), Mix 10pcs (Rp30.000)
+- Cheezy Series: Regular (Rp25.000), Large (Rp42.000), Family (Rp58.000)
+- Boncabe Series: Regular (Rp24.000), Large (Rp40.000), Family (Rp56.000)
+- Signature New: Spicy Mentai (Rp30.000), Dragon Cheese (Rp32.000)
+
 ---
 
 ## Workflow Development
@@ -888,5 +898,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 ---
 
 
-*Last updated: Sprint 3 Tahap 3 complete — Customer management (list + detail) + ProductSeeder (23 produk)*
-*Next milestone: Sprint 3 Tahap 4 — Option groups + items management (admin panel)*
+*Last updated: Sprint 3 Complete — Admin Panel selesai*
+*Next milestone: Sprint 4 — Loyalty (point history + daily check-in + rewards + redeem)*
