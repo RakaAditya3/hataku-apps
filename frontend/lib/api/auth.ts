@@ -20,13 +20,13 @@ export type ApiResponse<T> = {
 };
 
 export const getMe = (token: string) =>
-  apiFetch<ApiResponse<UserData>>("/auth/me", { token });
+  apiFetch<ApiResponse<UserData>>("/user/me", { token });
 
 export const updateProfile = (
   data: { name?: string; phone: string },
   token: string
 ) =>
-  apiFetch<ApiResponse<UserData>>("/auth/profile", {
+  apiFetch<ApiResponse<UserData>>("/user/profile", {
     method: "PUT",
     body: JSON.stringify(data),
     token,

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { toast } from "sonner";
 import { adminLogin } from "@/lib/api/admin";
 import { useAdminAuth } from "@/lib/store/admin-auth";
 
@@ -19,11 +18,13 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrors({});
+    setLoginError(null);
 
     const result = schema.safeParse({ email, password });
     if (!result.success) {
@@ -43,7 +44,7 @@ export default function AdminLoginPage() {
       router.replace("/admin");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Login gagal";
-      toast.error(msg);
+      setLoginError(msg);
     } finally {
       setLoading(false);
     }
@@ -97,6 +98,12 @@ export default function AdminLoginPage() {
                 <p className="text-xs text-red-500 mt-1">{errors.password}</p>
               )}
             </div>
+
+            {loginError && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
+                {loginError}
+              </p>
+            )}
 
             <button
               type="submit"

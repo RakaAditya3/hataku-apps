@@ -21,6 +21,7 @@ export const adminLogin = (email: string, password: string) =>
   apiFetch<AdminLoginResponse>("/admin/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
+    skipRedirectOn401: true,
   });
 
 export const adminLogout = (token: string) =>

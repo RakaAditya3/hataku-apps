@@ -35,8 +35,8 @@ Route::get('/rewards/{id}', [RewardController::class, 'show']);
 Route::post('/auth/google', [AuthController::class, 'googleLogin']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/auth/me', [AuthController::class, 'me']);
-    Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
+    Route::get('/user/me', [AuthController::class, 'me']);
+    Route::put('/user/profile', [AuthController::class, 'updateProfile']);
 
     // Orders
     Route::post('/orders', [OrderController::class, 'store']);

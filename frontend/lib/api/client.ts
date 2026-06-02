@@ -3,10 +3,13 @@ const getBaseUrl = () =>
     ? (process.env.API_INTERNAL_URL ?? "")
     : (process.env.NEXT_PUBLIC_API_URL ?? "");
 
-type FetchOptions = RequestInit & { token?: string };
+type FetchOptions = RequestInit & {
+  token?: string;
+  skipRedirectOn401?: boolean;
+};
 
 export async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
-  const { token, ...fetchOptions } = options;
+  const { token, skipRedirectOn401, ...fetchOptions } = options;
 
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -17,9 +20,10 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}): Pro
 
   const res = await fetch(`${getBaseUrl()}${path}`, { ...fetchOptions, headers });
 
-  if (res.status === 401) {
+  if (res.status === 401 && !skipRedirectOn401) {
     if (typeof window !== "undefined") {
-      window.location.href = "/login";
+      // Admin API calls redirect to admin login, customer calls to customer login
+      window.location.href = path.startsWith("/admin") ? "/admin/login" : "/login";
     }
     throw new Error("Unauthorized");
   }
