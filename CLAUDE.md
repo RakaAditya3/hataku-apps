@@ -63,6 +63,55 @@
 
 ---
 
+## Design System
+
+### Color Palette
+```css
+--color-primary:     #C4956A;  /* Brown warm — button, active icon */
+--color-primary-dark:#7B4F2E;  /* Dark brown — heading, logo text */
+--color-bg:          #FDF6EC;  /* Cream warm — background semua halaman */
+--color-card:        #FFFFFF;  /* White — card, bottom sheet */
+--color-accent:      #E8533A;  /* Red — harga, badge, notifikasi */
+--color-text:        #333333;  /* Body text */
+--color-subtext:     #9B9B9B;  /* Placeholder, subtext */
+--color-border:      #E8E8E8;  /* Divider, border input */
+--color-success:     #4CAF50;  /* Status done, sukses */
+```
+
+### Typography
+- Heading besar: `font-bold text-2xl/3xl text-[#7B4F2E]`
+- Heading medium: `font-semibold text-lg/xl text-[#7B4F2E]`
+- Body: `font-normal text-sm/base text-[#333333]`
+- Subtext: `font-normal text-xs/sm text-[#9B9B9B]`
+- Price: `font-bold text-base text-[#E8533A]`
+- Button: `font-semibold text-base text-white`
+
+### Border Radius
+- Button: `rounded-full` (pill)
+- Card: `rounded-2xl`
+- Input: `rounded-xl`
+- Chip/tag: `rounded-full`
+
+### Design References
+- Menu page: Fore Coffee style (horizontal category chips + list view)
+- Product detail: Tomoro style (list option groups + sticky bottom bar)
+- Rewards/Points: Tomoro style (gradient header + reward list cards)
+- Me/Profile: Tomoro style (stats row + menu list)
+- Daily streak: Duolingo widget style (di Me page + mini strip di Home)
+- Cart: Fore Coffee style (tanpa outlet lokasi)
+- Home: Hybrid (banner + loyalty card + quick actions 2x2)
+
+### Layout Rules
+- Background semua halaman customer: `bg-[#FDF6EC]`
+- Bottom nav: 4 tab (Home | Menu | Pesanan | Akun)
+- Bottom nav bg: `bg-white rounded-t-2xl shadow-lg`
+- Active tab: `text-[#C4956A]` + dot indicator
+- Inactive tab: `text-[#9B9B9B]`
+- Semua halaman: `max-w-md mx-auto` (mobile-first, centered di desktop)
+- Safe area bottom: `pb-safe` atau `pb-20` untuk konten di atas bottom nav
+
+---
+
 ## Struktur Folder
 
 ```
@@ -836,6 +885,9 @@ docker compose exec frontend npm run dev
 - [x] PWA setup (manifest + service worker via next-pwa)
 - [x] Notifikasi WA ke owner saat ada order baru (via Fonnte)
 - [x] Auto-expire order scheduler
+- [x] fix: whitelist lh3.googleusercontent.com untuk Google avatar
+- [x] fix: nginx route conflict /api/auth/* → pindah Laravel endpoint ke /user/*
+- [x] fix: admin login error redirect ke customer login
 
 **Sprint 6 — Pre-launch**
 - [ ] Soft launch ke customer existing (10-20 orang)
@@ -923,5 +975,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 
 ---
 
-*Last updated: Sprint 5 Complete — Promo + PWA + Notifikasi + Scheduler selesai*
-*Next milestone: Sprint 6 — Pre-launch (Cloudflare Tunnel + soft launch + bug fixing)*
+*Last updated: Design System defined — siap UI/UX revamp*
+*Next milestone: UI/UX Revamp Batch 1 — Foundation (design tokens + splash + login)*
