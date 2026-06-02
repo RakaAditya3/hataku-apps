@@ -5,10 +5,14 @@ use App\Http\Controllers\Api\AdminCategoryController;
 use App\Http\Controllers\Api\AdminCustomerController;
 use App\Http\Controllers\Api\AdminOrderController;
 use App\Http\Controllers\Api\AdminProductController;
+use App\Http\Controllers\Api\AdminRewardController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CheckinController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PointController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\RewardController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +20,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
+
+// Public rewards catalog
+Route::get('/rewards', [RewardController::class, 'index']);
+Route::get('/rewards/{id}', [RewardController::class, 'show']);
 
 // Customer auth
 Route::post('/auth/google', [AuthController::class, 'googleLogin']);
@@ -29,6 +37,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{code}', [OrderController::class, 'show']);
     Route::delete('/orders/{code}', [OrderController::class, 'cancel']);
+
+    // Check-in
+    Route::post('/checkin', [CheckinController::class, 'checkin']);
+    Route::get('/checkin/status', [CheckinController::class, 'status']);
+
+    // Points history
+    Route::get('/points/history', [PointController::class, 'history']);
 });
 
 // Admin
@@ -62,5 +77,11 @@ Route::prefix('admin')->group(function () {
         Route::post('/categories', [AdminCategoryController::class, 'store']);
         Route::put('/categories/{id}', [AdminCategoryController::class, 'update']);
         Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy']);
+
+        // Rewards
+        Route::get('/rewards', [AdminRewardController::class, 'index']);
+        Route::post('/rewards', [AdminRewardController::class, 'store']);
+        Route::put('/rewards/{id}', [AdminRewardController::class, 'update']);
+        Route::delete('/rewards/{id}', [AdminRewardController::class, 'destroy']);
     });
 });

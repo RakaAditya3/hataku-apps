@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             TierBenefitSeeder::class,
             AdminUserSeeder::class,
             ProductSeeder::class,
+            RewardSeeder::class,
         ]);
     }
 }

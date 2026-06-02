@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/admin/scan", label: "Scan QR", icon: "📷", exact: false },
   { href: "/admin/products", label: "Produk", icon: "🍱", exact: false },
   { href: "/admin/customers", label: "Customers", icon: "👥", exact: false },
+  { href: "/admin/rewards", label: "Rewards", icon: "🎁", exact: false },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
