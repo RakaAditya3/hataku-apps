@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AdminCategoryController;
 use App\Http\Controllers\Api\AdminCustomerController;
 use App\Http\Controllers\Api\AdminOrderController;
 use App\Http\Controllers\Api\AdminProductController;
+use App\Http\Controllers\Api\AdminPromoController;
 use App\Http\Controllers\Api\AdminRewardController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\CheckinController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PointController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\PromoController;
 use App\Http\Controllers\Api\RewardController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +22,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
+
+// Public promos
+Route::get('/promos', [PromoController::class, 'index']);
+Route::post('/promos/validate', [PromoController::class, 'validate']);
 
 // Public rewards catalog
 Route::get('/rewards', [RewardController::class, 'index']);
@@ -83,5 +89,11 @@ Route::prefix('admin')->group(function () {
         Route::post('/rewards', [AdminRewardController::class, 'store']);
         Route::put('/rewards/{id}', [AdminRewardController::class, 'update']);
         Route::delete('/rewards/{id}', [AdminRewardController::class, 'destroy']);
+
+        // Promos
+        Route::get('/promos', [AdminPromoController::class, 'index']);
+        Route::post('/promos', [AdminPromoController::class, 'store']);
+        Route::put('/promos/{id}', [AdminPromoController::class, 'update']);
+        Route::delete('/promos/{id}', [AdminPromoController::class, 'destroy']);
     });
 });

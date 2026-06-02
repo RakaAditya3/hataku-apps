@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/config";
 import { getProducts } from "@/lib/api/catalog";
 import { getMe } from "@/lib/api/auth";
+import { getPromos } from "@/lib/api/promos";
 import { ProductCard } from "@/components/customer/ProductCard";
 import { CartIcon } from "@/components/customer/CartIcon";
 import { Badge } from "@/components/ui/badge";
@@ -12,11 +14,12 @@ import { formatRupiah } from "@/lib/utils/format";
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
 
-  const [productsRes, userRes] = await Promise.allSettled([
+  const [productsRes, userRes, promosRes] = await Promise.allSettled([
     getProducts(),
     session?.user.sanctumToken
       ? getMe(session.user.sanctumToken)
       : Promise.reject(null),
+    getPromos(),
   ]);
 
   const products =
@@ -28,6 +31,11 @@ export default async function HomePage() {
     userRes.status === "fulfilled" && userRes.value.success
       ? userRes.value.data
       : null;
+
+  const promos =
+    promosRes.status === "fulfilled" && promosRes.value.success
+      ? promosRes.value.data
+      : [];
 
   return (
     <main className="min-h-screen bg-background">
@@ -66,23 +74,69 @@ export default async function HomePage() {
         </div>
       </header>
 
-      {/* Banner promo placeholder */}
+      {/* Promo banners */}
       <section className="px-4 pt-4">
-        <div className="rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 p-5 text-white min-h-[120px] flex flex-col justify-between">
-          <p className="text-xs font-medium opacity-80 uppercase tracking-wide">
-            Promo
-          </p>
-          <div>
-            <p className="text-xl font-black leading-tight">
-              Pesan, Kumpulkan,
-              <br />
-              Nikmati. 🥟
-            </p>
-            <p className="text-xs mt-1 opacity-80">
-              Poin loyalty untuk setiap transaksi
-            </p>
+        {promos.length > 0 ? (
+          <div className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-none">
+            {promos.map((promo) => (
+              <div
+                key={promo.id}
+                className="min-w-[85vw] md:min-w-[360px] snap-start shrink-0"
+              >
+                {promo.banner_url ? (
+                  <div className="rounded-2xl overflow-hidden relative w-full h-[120px]">
+                    <Image
+                      src={promo.banner_url}
+                      alt={promo.title}
+                      fill
+                      className="object-cover"
+                    />
+                    {promo.code && (
+                      <div className="absolute bottom-2 left-2">
+                        <span className="bg-white/90 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                          Kode: {promo.code}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl bg-linear-to-r from-orange-500 to-orange-400 p-5 text-white min-h-[120px] flex flex-col justify-between">
+                    <p className="text-xs font-medium opacity-80 uppercase tracking-wide">
+                      Promo
+                    </p>
+                    <div>
+                      <p className="text-base font-black leading-tight">{promo.title}</p>
+                      {promo.description && (
+                        <p className="text-xs mt-1 opacity-80">{promo.description}</p>
+                      )}
+                      {promo.code && (
+                        <span className="inline-block mt-2 bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                          Kode: {promo.code}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        </div>
+        ) : (
+          <div className="rounded-2xl bg-linear-to-r from-orange-500 to-orange-400 p-5 text-white min-h-[120px] flex flex-col justify-between">
+            <p className="text-xs font-medium opacity-80 uppercase tracking-wide">
+              Promo
+            </p>
+            <div>
+              <p className="text-xl font-black leading-tight">
+                Pesan, Kumpulkan,
+                <br />
+                Nikmati.
+              </p>
+              <p className="text-xs mt-1 opacity-80">
+                Poin loyalty untuk setiap transaksi
+              </p>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Featured products */}

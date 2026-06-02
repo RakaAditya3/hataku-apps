@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCartStore } from "@/lib/store/cart";
 import { createOrder } from "@/lib/api/orders";
+import { validatePromo, type PromoValidateResult } from "@/lib/api/promos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatRupiah } from "@/lib/utils/format";
@@ -18,6 +19,9 @@ export default function CheckoutPage() {
   const [orderType, setOrderType] = useState<"dine_in" | "takeaway">("dine_in");
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
+  const [promoResult, setPromoResult] = useState<PromoValidateResult | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
   const [pointsInput, setPointsInput] = useState("");
   const [pointsToRedeem, setPointsToRedeem] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -25,11 +29,34 @@ export default function CheckoutPage() {
 
   // Points conversion: 100 pt = Rp 5.000
   const pointsValue = Math.floor(pointsToRedeem / 100) * 5000;
-  const total = Math.max(0, totalPrice - pointsValue);
+  const discountAmount = promoResult?.discount_amount ?? 0;
+  const total = Math.max(0, totalPrice - discountAmount - pointsValue);
 
-  function handleApplyPromo() {
-    if (!promoCode.trim()) return;
-    setPromoApplied(true);
+  async function handleApplyPromo() {
+    const code = promoCode.trim();
+    if (!code) return;
+    setPromoError(null);
+    setPromoLoading(true);
+    try {
+      const res = await validatePromo(code, totalPrice);
+      if (res.success) {
+        setPromoResult(res.data);
+        setPromoApplied(true);
+      } else {
+        setPromoError("Kode promo tidak valid");
+      }
+    } catch (e) {
+      setPromoError(e instanceof Error ? e.message : "Kode promo tidak valid");
+    } finally {
+      setPromoLoading(false);
+    }
+  }
+
+  function handleRemovePromo() {
+    setPromoApplied(false);
+    setPromoResult(null);
+    setPromoCode("");
+    setPromoError(null);
   }
 
   function handleApplyPoints() {
@@ -63,7 +90,7 @@ export default function CheckoutPage() {
           option_item_id: opt.optionItemId,
         })),
       })),
-      ...(promoApplied && promoCode.trim() ? { promo_code: promoCode.trim() } : {}),
+      ...(promoApplied && promoResult ? { promo_code: promoResult.code } : {}),
       ...(pointsToRedeem > 0 ? { points_to_redeem: pointsToRedeem } : {}),
     };
 
@@ -159,7 +186,7 @@ export default function CheckoutPage() {
                     {item.quantity} × {formatRupiah(item.productPrice)}
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-orange-600 flex-shrink-0">{formatRupiah(item.subtotal)}</p>
+                <p className="text-sm font-semibold text-orange-600 shrink-0">{formatRupiah(item.subtotal)}</p>
               </div>
             ))}
           </div>
@@ -172,21 +199,27 @@ export default function CheckoutPage() {
             <Input
               placeholder="Masukkan kode promo"
               value={promoCode}
-              onChange={(e) => { setPromoCode(e.target.value); setPromoApplied(false); }}
+              onChange={(e) => { setPromoCode(e.target.value); if (promoApplied) handleRemovePromo(); }}
               className="flex-1 text-sm"
               disabled={promoApplied}
             />
             <Button
               variant="outline"
               size="sm"
-              onClick={promoApplied ? () => { setPromoApplied(false); setPromoCode(""); } : handleApplyPromo}
+              onClick={promoApplied ? handleRemovePromo : handleApplyPromo}
+              disabled={promoLoading}
               className="text-xs font-semibold px-4"
             >
-              {promoApplied ? "Hapus" : "Terapkan"}
+              {promoLoading ? "..." : promoApplied ? "Hapus" : "Terapkan"}
             </Button>
           </div>
-          {promoApplied && (
-            <p className="text-xs text-green-600 mt-1">Kode promo diterapkan — diskon akan dihitung oleh server</p>
+          {promoApplied && promoResult && (
+            <p className="text-xs text-green-600 mt-1">
+              {promoResult.title} — hemat {formatRupiah(promoResult.discount_amount)}
+            </p>
+          )}
+          {promoError && (
+            <p className="text-xs text-red-600 mt-1">{promoError}</p>
           )}
         </section>
 
@@ -230,21 +263,21 @@ export default function CheckoutPage() {
             <span className="text-muted-foreground">Subtotal</span>
             <span className="font-medium">{formatRupiah(totalPrice)}</span>
           </div>
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Diskon Promo</span>
+              <span>− {formatRupiah(discountAmount)}</span>
+            </div>
+          )}
           {pointsToRedeem > 0 && (
             <div className="flex justify-between text-green-600">
               <span>Diskon Point</span>
               <span>− {formatRupiah(pointsValue)}</span>
             </div>
           )}
-          {promoApplied && promoCode && (
-            <div className="flex justify-between text-green-600">
-              <span>Diskon Promo</span>
-              <span>Dihitung server</span>
-            </div>
-          )}
           <div className="flex justify-between font-black text-base pt-1 border-t">
             <span>Total</span>
-            <span className="text-orange-600">{promoApplied ? "Lihat setelah order" : formatRupiah(total)}</span>
+            <span className="text-orange-600">{formatRupiah(total)}</span>
           </div>
         </div>
         <Button

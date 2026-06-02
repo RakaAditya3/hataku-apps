@@ -17,4 +17,16 @@ class Promo extends Model
         'valid_from'  => 'datetime',
         'valid_until' => 'datetime',
     ];
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true)
+            ->where('valid_from', '<=', now())
+            ->where('valid_until', '>=', now());
+    }
+
+    public function scopeWithCode($query)
+    {
+        return $query->whereNotNull('code');
+    }
 }

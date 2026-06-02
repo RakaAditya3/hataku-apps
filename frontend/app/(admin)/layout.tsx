@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Pesanan", icon: "📋", exact: true },
   { href: "/admin/scan", label: "Scan QR", icon: "📷", exact: false },
   { href: "/admin/products", label: "Produk", icon: "🍱", exact: false },
+  { href: "/admin/promos", label: "Promo", icon: "🏷️", exact: false },
   { href: "/admin/customers", label: "Customers", icon: "👥", exact: false },
   { href: "/admin/rewards", label: "Rewards", icon: "🎁", exact: false },
 ];

@@ -11,11 +11,15 @@ use App\Models\Reward;
 use App\Models\TierBenefit;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
-    public function __construct(private TierService $tierService) {}
+    public function __construct(
+        private TierService $tierService,
+        private NotificationService $notificationService,
+    ) {}
 
 
     public function create(User $user, array $data): Order
@@ -191,6 +195,15 @@ class OrderService
 
             return $order->load(['items.options', 'user']);
         });
+
+        // Send WA notification outside transaction — don't block order creation on failure
+        try {
+            $this->notificationService->notifyNewOrder($order);
+        } catch (\Throwable $e) {
+            Log::warning('WA notification error: ' . $e->getMessage());
+        }
+
+        return $order;
     }
 
     public function cancel(Order $order, User $user): Order
