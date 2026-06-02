@@ -502,6 +502,17 @@ Alasan: harga/nama berubah kapan saja, tapi history transaksi harus reflect kond
 - points_to_redeem harus kelipatan 100 (validasi di FormRequest)
 - available_points = point_balance - point_reserved
 
+### 11. Reward Deactivation
+- Rewards TIDAK pakai is_deleted soft delete
+- Deactivate reward pakai is_active=false (bukan hard delete)
+- Alasan: redeemed_rewards masih reference reward_id yang sudah inactive
+
+### Reward Seeder (initial data):
+- 100 pt → Voucher Diskon Rp5.000
+- 200 pt → Voucher Diskon Rp10.000
+- 500 pt → Voucher Diskon Rp25.000
+- Product rewards: dibuat via admin panel (butuh product_id)
+
 ---
 
 ## Konvensi Coding
@@ -796,12 +807,12 @@ docker compose exec frontend npm run dev
 - [x] Customer list + detail
 
 **Sprint 4 — Loyalty**
-- [ ] Point earn on order done + tier bonus
-- [ ] Point transaction history (customer view)
-- [ ] Daily check-in (7-day streak)
-- [ ] Rewards catalog (admin manage)
-- [ ] Redeem flow (discount + product reward)
-- [ ] Tier system (auto-upgrade)
+- [x] Point transaction history (customer view — /rewards/history)
+- [x] Daily check-in (7-day streak, skip = lanjut, hari ke-7 = 5 point)
+- [x] Rewards catalog (customer view + admin manage)
+- [x] Redeem flow (navigate ke checkout dengan ?reward_id=X)
+- [x] Tier display di profile customer (badge + progress bar ke tier berikutnya)
+- [x] Profile page customer (info + logout)
 
 **Sprint 5 — Promo & Polish**
 - [ ] Promo management (admin)
@@ -898,5 +909,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 ---
 
 
-*Last updated: Sprint 3 Complete — Admin Panel selesai*
-*Next milestone: Sprint 4 — Loyalty (point history + daily check-in + rewards + redeem)*
+*Last updated: Sprint 4 Complete — Loyalty System selesai*
+*Next milestone: Sprint 5 — Promo + PWA + Notifikasi WA + Auto-expire scheduler*
