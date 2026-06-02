@@ -5,27 +5,34 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { QRCodeSVG } from "qrcode.react";
 import { getOrder, cancelOrder } from "@/lib/api/orders";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { formatRupiah } from "@/lib/utils/format";
 import type { Order, OrderStatus } from "@/types/api";
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
-  pending:     "Menunggu Scan",
-  paid:        "Sedang Diproses",
-  in_progress: "Sedang Dibuat",
-  done:        "Selesai",
-  cancelled:   "Dibatalkan",
-  expired:     "Kedaluwarsa",
+  pending:     "⏳ Menunggu Scan",
+  paid:        "👨‍🍳 Sedang Dibuat",
+  in_progress: "👨‍🍳 Sedang Dibuat",
+  done:        "✅ Selesai",
+  cancelled:   "❌ Dibatalkan",
+  expired:     "⌛ Kedaluwarsa",
 };
 
-const STATUS_COLOR: Record<OrderStatus, string> = {
-  pending:     "bg-yellow-100 text-yellow-800 border-yellow-200",
-  paid:        "bg-blue-100 text-blue-800 border-blue-200",
-  in_progress: "bg-orange-100 text-orange-800 border-orange-200",
-  done:        "bg-green-100 text-green-800 border-green-200",
-  cancelled:   "bg-red-100 text-red-800 border-red-200",
-  expired:     "bg-gray-100 text-gray-600 border-gray-200",
+const STATUS_STYLE: Record<OrderStatus, string> = {
+  pending:     "bg-amber-50 text-amber-700",
+  paid:        "bg-blue-50 text-blue-700",
+  in_progress: "bg-blue-50 text-blue-700",
+  done:        "bg-green-50 text-green-700",
+  cancelled:   "bg-red-50 text-red-700",
+  expired:     "bg-gray-50 text-gray-500",
+};
+
+const STATUS_BADGE: Record<OrderStatus, string> = {
+  pending:     "bg-amber-100 text-amber-700",
+  paid:        "bg-blue-100 text-blue-700",
+  in_progress: "bg-blue-100 text-blue-700",
+  done:        "bg-green-100 text-green-700",
+  cancelled:   "bg-red-100 text-red-700",
+  expired:     "bg-gray-100 text-gray-500",
 };
 
 function ExpiryCountdown({ expiresAt }: { expiresAt: string }) {
@@ -34,18 +41,23 @@ function ExpiryCountdown({ expiresAt }: { expiresAt: string }) {
   useEffect(() => {
     function compute() {
       const diff = new Date(expiresAt).getTime() - Date.now();
-      if (diff <= 0) { setTimeLeft("Sudah kadaluarsa"); return; }
+      if (diff <= 0) { setTimeLeft("Sudah kedaluwarsa"); return; }
       const h = Math.floor(diff / 3_600_000);
       const m = Math.floor((diff % 3_600_000) / 60_000);
-      setTimeLeft(`${h} jam ${m} menit`);
+      const s = Math.floor((diff % 60_000) / 1_000);
+      setTimeLeft(
+        h > 0
+          ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+          : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+      );
     }
     compute();
-    const id = setInterval(compute, 60_000);
+    const id = setInterval(compute, 1_000);
     return () => clearInterval(id);
   }, [expiresAt]);
 
   return (
-    <span className="text-xs text-muted-foreground">Kedaluwarsa dalam {timeLeft}</span>
+    <p className="text-sm text-price mt-1">Berlaku hingga {timeLeft}</p>
   );
 }
 
@@ -70,15 +82,9 @@ export function OrderDetailClient({ code }: { code: string }) {
   }, [code, session?.user.sanctumToken]);
 
   useEffect(() => {
-    if (sessionStatus === "unauthenticated") {
-      router.push("/login");
-      return;
-    }
+    if (sessionStatus === "unauthenticated") { router.push("/login"); return; }
     if (sessionStatus !== "authenticated") return;
-
     fetchOrder();
-
-    // Poll every 30 seconds
     const id = setInterval(fetchOrder, 30_000);
     return () => clearInterval(id);
   }, [sessionStatus, fetchOrder, router]);
@@ -98,152 +104,164 @@ export function OrderDetailClient({ code }: { code: string }) {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">Memuat pesanan...</p>
-      </main>
-    );
-  }
-
-  if (error && !order) {
-    return (
-      <main className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-8 text-center">
-        <p className="text-sm text-red-600">{error}</p>
-        <Button variant="outline" onClick={() => router.push("/orders")}>Kembali ke Pesanan</Button>
+      <main className="min-h-screen bg-cream flex items-center justify-center">
+        <p className="text-sm text-subtext">Memuat pesanan...</p>
       </main>
     );
   }
 
   if (!order) {
     return (
-      <main className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-8 text-center">
-        <p className="text-sm text-muted-foreground">Pesanan tidak ditemukan</p>
-        <Button variant="outline" onClick={() => router.push("/orders")}>Kembali</Button>
+      <main className="min-h-screen bg-cream flex flex-col items-center justify-center gap-4 px-8 text-center">
+        <p className="text-sm text-price">{error ?? "Pesanan tidak ditemukan"}</p>
+        <button
+          onClick={() => router.push("/orders")}
+          className="border border-hairline text-body-text rounded-full px-6 py-2 text-sm font-semibold"
+        >
+          Kembali ke Pesanan
+        </button>
       </main>
     );
   }
 
-  const isTerminal = ["done", "cancelled", "expired"].includes(order.status);
+  const showQR = order.status === "pending" || order.status === "paid";
 
   return (
-    <main className="min-h-screen bg-background pb-8">
-      <header className="sticky top-0 z-10 bg-background border-b px-4 py-3 flex items-center gap-3">
-        <button onClick={() => router.push("/orders")} className="text-muted-foreground hover:text-foreground text-sm font-medium">
-          ← Pesanan
+    <main className="min-h-screen bg-cream pb-8">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-cream px-4 py-3 flex items-center gap-2">
+        <button
+          onClick={() => router.push("/orders")}
+          className="text-subtext hover:text-body-text text-xl leading-none w-8"
+        >
+          ←
         </button>
-        <h1 className="text-base font-bold flex-1">Detail Pesanan</h1>
-        <Badge className={`text-xs border ${STATUS_COLOR[order.status]}`}>
-          {STATUS_LABEL[order.status]}
-        </Badge>
+        <h1 className="flex-1 font-bold text-base text-body-text">Detail Pesanan</h1>
+        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_BADGE[order.status]}`}>
+          {STATUS_LABEL[order.status].replace(/^.{2}/, "").trim()}
+        </span>
       </header>
 
-      <div className="px-4 py-5 space-y-6">
-        {/* QR Code section */}
-        {order.status === "pending" && (
-          <section className="flex flex-col items-center gap-4 py-4">
-            <div className="rounded-2xl bg-white border p-4 shadow-sm">
+      <div className="space-y-3 mt-1">
+        {/* QR Card */}
+        {showQR && (
+          <section className="mx-4 bg-white rounded-2xl p-6 shadow-sm flex flex-col items-center">
+            <div className="p-3 bg-white border border-hairline rounded-2xl">
               <QRCodeSVG value={order.order_code} size={200} />
             </div>
-            <div className="text-center">
-              <p className="font-mono font-black text-xl tracking-widest">{order.order_code}</p>
-              <p className="text-xs text-muted-foreground mt-1">Tunjukkan QR ini ke kasir</p>
-              {order.expires_at && <ExpiryCountdown expiresAt={order.expires_at} />}
-            </div>
-          </section>
-        )}
-
-        {/* Non-pending status info */}
-        {order.status !== "pending" && (
-          <section className="rounded-xl border bg-card px-4 py-4 text-center space-y-1">
-            <p className="font-mono font-bold text-base tracking-wider">{order.order_code}</p>
-            <p className="text-sm text-muted-foreground">
-              {order.order_type === "dine_in" ? "Makan di Tempat" : "Bawa Pulang"}
+            <p className="font-mono font-bold text-lg text-primary-dark mt-4 tracking-widest">
+              {order.order_code}
             </p>
-            {order.status === "done" && order.points_earned !== null && (
-              <p className="text-sm text-green-600 font-semibold">+{order.points_earned} poin earned</p>
-            )}
+            <p className="text-xs text-subtext mt-1">Tunjukkan ke kasir untuk membayar</p>
+            {order.expires_at && <ExpiryCountdown expiresAt={order.expires_at} />}
           </section>
         )}
 
-        {/* Order items */}
-        <section>
-          <p className="text-sm font-semibold mb-2">Pesanan</p>
-          <div className="rounded-xl border bg-card divide-y">
-            {order.items.map((item) => (
-              <div key={item.id} className="px-4 py-3 flex justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{item.product_name}</p>
-                  {item.options.length > 0 && (
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {item.options.map((opt) => (
-                        <span key={opt.id} className="text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                          {opt.option_name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {item.quantity} × {formatRupiah(item.product_price)}
-                  </p>
-                </div>
-                <p className="text-sm font-semibold text-orange-600 flex-shrink-0">{formatRupiah(item.subtotal)}</p>
-              </div>
-            ))}
-          </div>
+        {/* Status Badge Besar */}
+        <section className={`mx-4 rounded-2xl p-4 ${STATUS_STYLE[order.status]}`}>
+          <p className="font-semibold text-sm text-center">{STATUS_LABEL[order.status]}</p>
+          {!showQR && (
+            <p className="text-xs text-center opacity-70 mt-0.5 font-mono">{order.order_code}</p>
+          )}
         </section>
 
-        {/* Pricing summary */}
-        <section className="rounded-xl border bg-card px-4 py-4 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span>{formatRupiah(order.subtotal)}</span>
+        {/* Poin Earned (jika done) */}
+        {order.status === "done" && order.points_earned != null && order.points_earned > 0 && (
+          <section className="mx-4 bg-primary/10 rounded-xl px-4 py-4 text-center">
+            <p className="text-sm text-primary">
+              🎉 Selamat! Kamu mendapat{" "}
+              <span className="font-bold">{order.points_earned} poin</span> dari pesanan ini
+            </p>
+          </section>
+        )}
+
+        {/* Detail Pesanan */}
+        <section className="mx-4 bg-white rounded-2xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-hairline">
+            <p className="font-semibold text-sm text-primary-dark">Pesanan</p>
           </div>
-          {order.discount_amount > 0 && (
-            <div className="flex justify-between text-green-600">
-              <span>Diskon Promo {order.promo_code_used ? `(${order.promo_code_used})` : ""}</span>
-              <span>− {formatRupiah(order.discount_amount)}</span>
+          {order.items.map((item) => (
+            <div
+              key={item.id}
+              className="px-4 py-3 flex justify-between gap-2 border-b border-hairline last:border-0"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-body-text">{item.product_name}</p>
+                {item.options.length > 0 && (
+                  <p className="text-xs text-subtext mt-0.5">
+                    Saus: {item.options.map((o) => o.option_name).join(", ")}
+                  </p>
+                )}
+                <p className="text-xs text-subtext mt-0.5">
+                  {item.quantity} × {formatRupiah(item.product_price)}
+                </p>
+              </div>
+              <p className="text-sm font-semibold text-price shrink-0">{formatRupiah(item.subtotal)}</p>
             </div>
-          )}
-          {order.points_value > 0 && (
-            <div className="flex justify-between text-green-600">
-              <span>Diskon Point ({order.points_redeemed} pt)</span>
-              <span>− {formatRupiah(order.points_value)}</span>
+          ))}
+
+          {/* Pricing summary */}
+          <div className="px-4 py-3 space-y-2 text-sm border-t border-hairline">
+            <div className="flex justify-between">
+              <span className="text-subtext">Subtotal</span>
+              <span className="text-body-text">{formatRupiah(order.subtotal)}</span>
             </div>
-          )}
-          {order.reward_discount > 0 && (
-            <div className="flex justify-between text-green-600">
-              <span>Diskon Reward</span>
-              <span>− {formatRupiah(order.reward_discount)}</span>
+            {order.discount_amount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>
+                  Diskon Promo{order.promo_code_used ? ` (${order.promo_code_used})` : ""}
+                </span>
+                <span>− {formatRupiah(order.discount_amount)}</span>
+              </div>
+            )}
+            {order.points_value > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Diskon Poin ({order.points_redeemed} pt)</span>
+                <span>− {formatRupiah(order.points_value)}</span>
+              </div>
+            )}
+            {order.reward_discount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Diskon Reward</span>
+                <span>− {formatRupiah(order.reward_discount)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold text-base border-t border-hairline pt-2">
+              <span className="text-body-text">Total</span>
+              <span className="text-body-text">{formatRupiah(order.total)}</span>
             </div>
-          )}
-          <div className="flex justify-between font-black text-base border-t pt-2">
-            <span>Total</span>
-            <span className="text-orange-600">{formatRupiah(order.total)}</span>
           </div>
         </section>
 
         {/* Error */}
         {error && (
-          <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          <div className="mx-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        {/* Cancel button */}
+        {/* Tombol Batalkan */}
         {order.status === "pending" && (
-          <Button
-            variant="outline"
-            onClick={handleCancel}
-            disabled={cancelling}
-            className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 font-semibold"
-          >
-            {cancelling ? "Membatalkan..." : "Batalkan Pesanan"}
-          </Button>
+          <div className="mx-4 mt-2">
+            <button
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="w-full h-12 border-2 border-price text-price bg-transparent rounded-full font-semibold text-sm disabled:opacity-60"
+            >
+              {cancelling ? "Membatalkan..." : "Batalkan Pesanan"}
+            </button>
+          </div>
         )}
 
-        {isTerminal && (
-          <Button onClick={() => router.push("/menu")} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold">
-            Pesan Lagi
-          </Button>
+        {["done", "cancelled", "expired"].includes(order.status) && (
+          <div className="mx-4 mt-2 mb-4">
+            <button
+              onClick={() => router.push("/menu")}
+              className="w-full h-12 bg-primary text-white rounded-full font-semibold text-sm"
+            >
+              Pesan Lagi
+            </button>
+          </div>
         )}
       </div>
     </main>

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getOrders } from "@/lib/api/orders";
-import { Badge } from "@/components/ui/badge";
 import { formatRupiah } from "@/lib/utils/format";
 import type { Order, OrderStatus } from "@/types/api";
 
@@ -18,13 +17,22 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
   expired:     "Kedaluwarsa",
 };
 
-const STATUS_COLOR: Record<OrderStatus, string> = {
-  pending:     "bg-yellow-100 text-yellow-800 border-yellow-200",
-  paid:        "bg-blue-100 text-blue-800 border-blue-200",
-  in_progress: "bg-orange-100 text-orange-800 border-orange-200",
-  done:        "bg-green-100 text-green-800 border-green-200",
-  cancelled:   "bg-red-100 text-red-800 border-red-200",
-  expired:     "bg-gray-100 text-gray-600 border-gray-200",
+const STATUS_BADGE: Record<OrderStatus, string> = {
+  pending:     "bg-amber-100 text-amber-700",
+  paid:        "bg-blue-100 text-blue-700",
+  in_progress: "bg-blue-100 text-blue-700",
+  done:        "bg-green-100 text-green-700",
+  cancelled:   "bg-gray-100 text-gray-500",
+  expired:     "bg-gray-100 text-gray-500",
+};
+
+const STATUS_BORDER: Record<OrderStatus, string> = {
+  pending:     "border-l-amber-400",
+  paid:        "border-l-blue-400",
+  in_progress: "border-l-blue-400",
+  done:        "border-l-green-400",
+  cancelled:   "border-l-gray-300",
+  expired:     "border-l-gray-300",
 };
 
 function formatDate(iso: string) {
@@ -45,10 +53,7 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (sessionStatus === "unauthenticated") {
-      router.push("/login");
-      return;
-    }
+    if (sessionStatus === "unauthenticated") { router.push("/login"); return; }
     if (sessionStatus !== "authenticated" || !session?.user.sanctumToken) return;
 
     getOrders(session.user.sanctumToken)
@@ -58,88 +63,78 @@ export default function OrdersPage() {
   }, [sessionStatus, session?.user.sanctumToken, router]);
 
   return (
-    <main className="min-h-screen bg-background pb-20">
-      <header className="sticky top-0 z-10 bg-background border-b px-4 py-3 flex items-center gap-3">
-        <button onClick={() => router.push("/")} className="text-muted-foreground hover:text-foreground text-sm font-medium">
-          ← Beranda
+    <main className="min-h-screen bg-cream pb-8">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-cream px-4 py-3 flex items-center">
+        <button
+          onClick={() => router.push("/")}
+          className="text-subtext hover:text-body-text text-xl leading-none w-8"
+        >
+          ←
         </button>
-        <h1 className="text-base font-bold flex-1">Pesanan Saya</h1>
+        <h1 className="flex-1 text-center font-bold text-base text-body-text">Pesanan Saya</h1>
+        <div className="w-8" />
       </header>
 
-      <div className="px-4 py-4">
+      <div className="mt-2">
         {loading && (
-          <p className="text-sm text-muted-foreground text-center py-12">Memuat...</p>
+          <p className="text-sm text-subtext text-center py-16">Memuat...</p>
         )}
 
         {error && (
-          <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          <div className="mx-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
             {error}
           </div>
         )}
 
         {!loading && !error && orders.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+          <div className="flex flex-col items-center justify-center py-20 gap-4 text-center px-8">
             <span className="text-5xl">📋</span>
             <div className="space-y-1">
-              <p className="font-bold text-base">Belum ada pesanan</p>
-              <p className="text-sm text-muted-foreground">Yuk pesan sekarang!</p>
+              <p className="font-semibold text-base text-primary-dark">Belum ada pesanan</p>
+              <p className="text-sm text-subtext">Mulai pesan dimsum favoritmu!</p>
             </div>
-            <Link href="/menu" className="text-sm text-orange-600 font-semibold hover:underline">
-              Lihat Menu
+            <Link
+              href="/menu"
+              className="bg-primary text-white font-semibold text-sm px-6 py-2.5 rounded-full"
+            >
+              Pesan Sekarang
             </Link>
           </div>
         )}
 
         {!loading && orders.length > 0 && (
-          <div className="space-y-3">
+          <div className="px-4 space-y-3">
             {orders.map((order) => (
               <Link key={order.id} href={`/orders/${order.order_code}`}>
-                <div className="rounded-xl border bg-card p-4 space-y-3 hover:shadow-sm transition-shadow">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-mono font-bold text-sm">{order.order_code}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{formatDate(order.created_at)}</p>
-                    </div>
-                    <Badge className={`text-xs border flex-shrink-0 ${STATUS_COLOR[order.status]}`}>
+                <div
+                  className={`bg-white rounded-2xl p-4 border-l-4 ${STATUS_BORDER[order.status]} shadow-sm hover:shadow-md transition-shadow`}
+                >
+                  {/* Row 1: code + badge */}
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-mono font-semibold text-sm text-body-text">
+                      {order.order_code}
+                    </p>
+                    <span
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${STATUS_BADGE[order.status]}`}
+                    >
                       {STATUS_LABEL[order.status]}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {order.items.length} item · {order.order_type === "dine_in" ? "Dine In" : "Takeaway"}
                     </span>
-                    <span className="font-bold text-orange-600">{formatRupiah(order.total)}</span>
                   </div>
+
+                  {/* Row 2: item count + price */}
+                  <p className="text-sm text-subtext mt-1.5">
+                    {order.items.length} item · {formatRupiah(order.total)}
+                  </p>
+
+                  {/* Row 3: date */}
+                  <p className="text-xs text-subtext mt-1">{formatDate(order.created_at)}</p>
                 </div>
               </Link>
             ))}
           </div>
         )}
       </div>
-
-      {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t px-4 py-2 flex justify-around">
-        <Link href="/" className="flex flex-col items-center gap-0.5 text-muted-foreground">
-          <span className="text-xl">🏠</span>
-          <span className="text-[10px] font-medium">Beranda</span>
-        </Link>
-        <Link href="/menu" className="flex flex-col items-center gap-0.5 text-muted-foreground">
-          <span className="text-xl">🥟</span>
-          <span className="text-[10px] font-medium">Menu</span>
-        </Link>
-        <Link href="/orders" className="flex flex-col items-center gap-0.5 text-orange-600">
-          <span className="text-xl">📋</span>
-          <span className="text-[10px] font-medium">Pesanan</span>
-        </Link>
-        <Link href="/rewards" className="flex flex-col items-center gap-0.5 text-muted-foreground">
-          <span className="text-xl">🎁</span>
-          <span className="text-[10px] font-medium">Reward</span>
-        </Link>
-        <Link href="/profile" className="flex flex-col items-center gap-0.5 text-muted-foreground">
-          <span className="text-xl">👤</span>
-          <span className="text-[10px] font-medium">Profil</span>
-        </Link>
-      </nav>
     </main>
   );
 }
