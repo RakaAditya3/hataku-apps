@@ -5,32 +5,35 @@ import type { NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Public paths — skip all checks
+  // Public routes — accessible without auth
   const isPublic =
     pathname === "/" ||
     pathname.startsWith("/menu") ||
-    pathname.startsWith("/cart") ||
     pathname.startsWith("/login") ||
-    pathname.startsWith("/admin") ||       // admin has its own Sanctum auth, skip NextAuth
+    pathname === "/splash" ||
+    pathname === "/offline" ||
+    pathname === "/complete-profile" ||
+    pathname.startsWith("/admin") ||       // admin has its own Sanctum auth
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next/") ||
     pathname === "/favicon.ico" ||
     pathname === "/manifest.webmanifest" ||
     pathname === "/sw.js" ||
     pathname.startsWith("/workbox-") ||
-    pathname === "/offline" ||
     pathname.startsWith("/icons/");
 
   if (isPublic) return NextResponse.next();
 
+  // Everything below requires NextAuth session
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // Require phone for all routes except /complete-profile
-  if (!token.phone && pathname !== "/complete-profile") {
+  // Logged in but no phone → redirect to complete-profile
+  // (complete-profile is public so no infinite redirect)
+  if (!token.phone) {
     return NextResponse.redirect(new URL("/complete-profile", req.url));
   }
 

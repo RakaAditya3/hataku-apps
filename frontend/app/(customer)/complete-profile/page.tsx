@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { updateProfile } from "@/lib/api/auth";
 
 const schema = z.object({
@@ -42,13 +41,10 @@ export default function CompleteProfilePage() {
     setLoading(true);
     try {
       const res = await updateProfile({ phone }, session.user.sanctumToken);
-
       if (!res.success) {
         setError("Gagal menyimpan nomor HP. Coba lagi.");
         return;
       }
-
-      // Update session so middleware phone check passes
       await update({ phone });
       router.push("/");
       router.refresh();
@@ -60,46 +56,67 @@ export default function CompleteProfilePage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-orange-50 to-white px-4">
-      <div className="w-full max-w-sm space-y-8">
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold text-orange-600">HATAKU</h1>
-          <h2 className="text-xl font-semibold">Lengkapi Profil</h2>
-          <p className="text-sm text-muted-foreground">
-            Masukkan nomor HP untuk menerima notifikasi pesanan
-          </p>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#7B4F2E" }}>
+      {/* Hero gradient */}
+      <div className="h-[30vh] bg-linear-to-b from-[#C4956A] to-primary-dark flex flex-col items-center justify-center px-6">
+        <div className="bg-white rounded-2xl p-3 shadow-lg">
+          <Image
+            src="/icons/icon-512x512.png"
+            width={64}
+            height={64}
+            alt="HATAKU"
+            className="rounded-xl"
+            priority
+          />
         </div>
+        <h1 className="text-white font-bold text-xl mt-3 tracking-tight">
+          HATAKU DIMSUM
+        </h1>
+      </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-md p-6 space-y-4">
-          <div className="space-y-1">
-            <label htmlFor="phone" className="text-sm font-medium">
-              Nomor HP
-            </label>
-            <Input
-              id="phone"
-              type="tel"
-              inputMode="numeric"
-              placeholder="08xxxxxxxxxx"
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value.replace(/\D/g, ""));
-                setError(null);
-              }}
-              className="h-12 text-base"
-              autoFocus
-            />
-            {error && <p className="text-sm text-red-500">{error}</p>}
+      {/* Bottom card */}
+      <div className="flex-1 bg-cream rounded-t-3xl -mt-8 px-6 pt-8 pb-12">
+        <h2 className="font-bold text-2xl text-primary-dark">
+          Satu langkah lagi!
+        </h2>
+        <p className="text-sm text-subtext mt-2 leading-relaxed">
+          Masukkan nomor HP kamu untuk melanjutkan
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          {/* Phone input with +62 prefix */}
+          <div>
+            <div className="flex h-14 bg-white border border-hairline rounded-xl overflow-hidden">
+              <div className="flex items-center px-4 border-r border-hairline shrink-0">
+                <span className="text-primary-dark font-semibold text-sm">+62</span>
+              </div>
+              <input
+                type="tel"
+                inputMode="numeric"
+                placeholder="8xx-xxxx-xxxx"
+                value={phone}
+                onChange={(e) => {
+                  setPhone(e.target.value.replace(/\D/g, ""));
+                  setError(null);
+                }}
+                className="flex-1 px-4 text-body-text outline-none bg-transparent text-base placeholder:text-subtext"
+                autoFocus
+              />
+            </div>
+            {error && (
+              <p className="text-price text-sm mt-2">{error}</p>
+            )}
           </div>
 
-          <Button
+          <button
             type="submit"
-            className="w-full h-12 text-base bg-orange-500 hover:bg-orange-600"
-            disabled={loading}
+            disabled={loading || !phone}
+            className="w-full h-14 bg-[#C4956A] rounded-full text-white font-semibold text-base disabled:opacity-50 transition-opacity active:scale-95"
           >
-            {loading ? "Menyimpan..." : "Simpan & Lanjutkan"}
-          </Button>
+            {loading ? "Menyimpan..." : "Lanjutkan"}
+          </button>
         </form>
       </div>
-    </main>
+    </div>
   );
 }

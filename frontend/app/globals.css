@@ -48,6 +48,17 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* HATAKU Design System Tokens */
+@theme {
+  --color-primary-dark: #7B4F2E;
+  --color-cream: #FDF6EC;
+  --color-price: #E8533A;
+  --color-body-text: #333333;
+  --color-subtext: #9B9B9B;
+  --color-hairline: #E8E8E8;
+  --color-success: #4CAF50;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -55,8 +66,9 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  /* HATAKU: primary = warm brown */
+  --primary: #C4956A;
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -117,14 +129,46 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Splash screen animations */
+@keyframes hataku-logo {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes hataku-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hataku-anim-logo {
+  animation: hataku-logo 0.6s ease-out forwards;
+}
+.hataku-anim-fade-1 {
+  opacity: 0;
+  animation: hataku-fade-up 0.5s ease-out 0.3s forwards;
+}
+.hataku-anim-fade-2 {
+  opacity: 0;
+  animation: hataku-fade-up 0.5s ease-out 0.5s forwards;
+}
+.hataku-anim-fade-3 {
+  opacity: 0;
+  animation: hataku-fade-up 0.5s ease-out 0.7s forwards;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  body::-webkit-scrollbar {
+    display: none;
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
 }

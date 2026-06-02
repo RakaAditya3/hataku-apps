@@ -7,9 +7,9 @@ import { getMe } from "@/lib/api/auth";
 import { getPromos } from "@/lib/api/promos";
 import { ProductCard } from "@/components/customer/ProductCard";
 import { CartIcon } from "@/components/customer/CartIcon";
+import { SplashRedirect } from "@/components/customer/SplashRedirect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatRupiah } from "@/lib/utils/format";
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -38,11 +38,13 @@ export default async function HomePage() {
       : [];
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen">
+      <SplashRedirect />
+
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background border-b px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-10 bg-cream border-b border-hairline px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xl font-black text-orange-600 tracking-tight">
+          <span className="text-xl font-black text-[#C4956A] tracking-tight">
             HATAKU
           </span>
         </div>
@@ -53,13 +55,13 @@ export default async function HomePage() {
               {user && (
                 <Badge
                   variant="secondary"
-                  className="font-semibold text-orange-700 bg-orange-50"
+                  className="font-semibold text-primary-dark bg-[#C4956A]/10"
                 >
                   {user.point_balance} poin
                 </Badge>
               )}
               <Link href="/profile">
-                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-sm">
+                <div className="w-8 h-8 rounded-full bg-[#C4956A]/10 flex items-center justify-center text-primary-dark font-bold text-sm">
                   {session.user.name?.charAt(0).toUpperCase() ?? "U"}
                 </div>
               </Link>
@@ -93,14 +95,14 @@ export default async function HomePage() {
                     />
                     {promo.code && (
                       <div className="absolute bottom-2 left-2">
-                        <span className="bg-white/90 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                        <span className="bg-white/90 text-primary-dark text-xs font-bold px-2 py-0.5 rounded-full">
                           Kode: {promo.code}
                         </span>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="rounded-2xl bg-linear-to-r from-orange-500 to-orange-400 p-5 text-white min-h-[120px] flex flex-col justify-between">
+                  <div className="rounded-2xl bg-linear-to-r from-[#C4956A] to-primary-dark p-5 text-white min-h-[120px] flex flex-col justify-between">
                     <p className="text-xs font-medium opacity-80 uppercase tracking-wide">
                       Promo
                     </p>
@@ -121,9 +123,9 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl bg-linear-to-r from-orange-500 to-orange-400 p-5 text-white min-h-[120px] flex flex-col justify-between">
+          <div className="rounded-2xl bg-linear-to-r from-[#C4956A] to-primary-dark p-5 text-white min-h-[120px] flex flex-col justify-between">
             <p className="text-xs font-medium opacity-80 uppercase tracking-wide">
-              Promo
+              Selamat datang
             </p>
             <div>
               <p className="text-xl font-black leading-tight">
@@ -140,19 +142,19 @@ export default async function HomePage() {
       </section>
 
       {/* Featured products */}
-      <section className="px-4 pt-6 pb-8">
+      <section className="px-4 pt-6 pb-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold">Menu Pilihan</h2>
+          <h2 className="text-base font-bold text-primary-dark">Menu Pilihan</h2>
           <Link
             href="/menu"
-            className="text-sm text-orange-600 font-medium hover:underline"
+            className="text-sm text-[#C4956A] font-medium"
           >
             Lihat semua
           </Link>
         </div>
 
         {products.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground text-sm">
+          <div className="text-center py-12 text-subtext text-sm">
             Menu belum tersedia
           </div>
         ) : (
@@ -163,30 +165,6 @@ export default async function HomePage() {
           </div>
         )}
       </section>
-
-      {/* Bottom nav placeholder */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t px-4 py-2 flex justify-around">
-        <Link href="/" className="flex flex-col items-center gap-0.5 text-orange-600">
-          <span className="text-xl">🏠</span>
-          <span className="text-[10px] font-medium">Beranda</span>
-        </Link>
-        <Link href="/menu" className="flex flex-col items-center gap-0.5 text-muted-foreground">
-          <span className="text-xl">🥟</span>
-          <span className="text-[10px] font-medium">Menu</span>
-        </Link>
-        <Link href="/orders" className="flex flex-col items-center gap-0.5 text-muted-foreground">
-          <span className="text-xl">📋</span>
-          <span className="text-[10px] font-medium">Pesanan</span>
-        </Link>
-        <Link href="/rewards" className="flex flex-col items-center gap-0.5 text-muted-foreground">
-          <span className="text-xl">🎁</span>
-          <span className="text-[10px] font-medium">Reward</span>
-        </Link>
-        <Link href="/profile" className="flex flex-col items-center gap-0.5 text-muted-foreground">
-          <span className="text-xl">👤</span>
-          <span className="text-[10px] font-medium">Profil</span>
-        </Link>
-      </nav>
     </main>
   );
 }
