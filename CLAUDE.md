@@ -663,7 +663,22 @@ const schema = z.object({
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 ```
 
-**6. PWA — manifest.ts + service worker via next-pwa**
+### PWA (next-pwa)
+- Config di `next.config.mjs` (BUKAN .ts) — webpack requirement
+- JANGAN install @types/next-pwa — conflict Next.js 15
+- PWA disabled di development (NODE_ENV=development) — aktif hanya di production build
+- Build production WAJIB webpack (hapus --turbopack dari build script)
+- Dev tetap bisa pakai turbopack
+- sw.js + workbox-*.js di-gitignore (auto-generated saat build)
+- Icon placeholder di public/icons/ — ganti dengan logo HATAKU asli sebelum launch
+- Middleware whitelist: /manifest.webmanifest, /sw.js, /workbox-*, /offline, /icons/*
+
+### Notifikasi WhatsApp (Fonnte)
+- Service: app/Services/NotificationService.php
+- Panggil SELALU di luar DB::transaction
+- Wrap dengan try-catch — jangan biarkan WA failure block order creation
+- Jika FONNTE_API_KEY kosong → skip otomatis, return false
+- Env vars: FONNTE_API_KEY + FONNTE_TARGET_NUMBER di backend .env
 
 ---
 
@@ -908,6 +923,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 
 ---
 
-
-*Last updated: Sprint 5 Tahap 2 — PWA Setup selesai (next-pwa + manifest + sw.js + offline page)*
-*Next milestone: Sprint 5 Tahap 3 — Promo code apply at checkout + Tier benefits weekly voucher*
+*Last updated: Sprint 5 Complete — Promo + PWA + Notifikasi + Scheduler selesai*
+*Next milestone: Sprint 6 — Pre-launch (Cloudflare Tunnel + soft launch + bug fixing)*
