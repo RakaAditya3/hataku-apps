@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
@@ -13,9 +13,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#dc2626",
+};
+
 export const metadata: Metadata = {
-  title: "HATAKU — Pesan, Kumpulkan, Nikmati",
-  description: "Aplikasi pemesanan Dimsum HATAKU",
+  title: "HATAKU Dimsum",
+  description: "Pesan, Kumpulkan, Nikmati — Dimsum HATAKU",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "HATAKU",
+  },
 };
 
 export default function RootLayout({

@@ -815,12 +815,12 @@ docker compose exec frontend npm run dev
 - [x] Profile page customer (info + logout)
 
 **Sprint 5 — Promo & Polish**
-- [ ] Promo management (admin)
+- [x] Promo management (admin)
 - [ ] Promo code apply at checkout
 - [ ] Tier benefits (weekly voucher via scheduler)
-- [ ] PWA setup (manifest + service worker)
-- [ ] Notifikasi WA ke owner saat ada order baru (via Fonnte)
-- [ ] Auto-expire order scheduler
+- [x] PWA setup (manifest + service worker via next-pwa)
+- [x] Notifikasi WA ke owner saat ada order baru (via Fonnte)
+- [x] Auto-expire order scheduler
 
 **Sprint 6 — Pre-launch**
 - [ ] Soft launch ke customer existing (10-20 orang)
@@ -909,5 +909,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 ---
 
 
-*Last updated: Sprint 4 Complete — Loyalty System selesai*
-*Next milestone: Sprint 5 — Promo + PWA + Notifikasi WA + Auto-expire scheduler*
+*Last updated: Sprint 5 Tahap 2 — PWA Setup selesai (next-pwa + manifest + sw.js + offline page)*
+*Next milestone: Sprint 5 Tahap 3 — Promo code apply at checkout + Tier benefits weekly voucher*

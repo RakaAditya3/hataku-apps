@@ -14,7 +14,12 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/admin") ||       // admin has its own Sanctum auth, skip NextAuth
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next/") ||
-    pathname === "/favicon.ico";
+    pathname === "/favicon.ico" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/sw.js" ||
+    pathname.startsWith("/workbox-") ||
+    pathname === "/offline" ||
+    pathname.startsWith("/icons/");
 
   if (isPublic) return NextResponse.next();
 
