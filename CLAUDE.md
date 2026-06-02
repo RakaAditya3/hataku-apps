@@ -889,6 +889,22 @@ docker compose exec frontend npm run dev
 - [x] fix: nginx route conflict /api/auth/* → pindah Laravel endpoint ke /user/*
 - [x] fix: admin login error redirect ke customer login
 
+**UI/UX Revamp — Complete**
+- [x] Design System tokens (cream, primary brown, dark brown, accent red)
+- [x] Splash screen (animasi logo scale + text fade)
+- [x] Login page (gradient hero + cream bottom sheet + Google button)
+- [x] Complete profile page (redesign form +62)
+- [x] Bottom nav 4 tab (Home|Menu|Pesanan|Akun)
+- [x] Home page (hybrid Fore+Tomoro: banner + loyalty card + streak mini + quick actions + featured menu)
+- [x] Menu page (Fore style: search + category chips + list view)
+- [x] Product detail (Tomoro style: list options + sticky bottom + poin info)
+- [x] Cart page (Fore style)
+- [x] Checkout page (tipe pesanan + promo + poin + rincian)
+- [x] Order detail/QR (QR besar + status + poin earned)
+- [x] Rewards page (Tomoro style: gradient header + streak card + tier + reward list)
+- [x] Profile/Me page (Tomoro style: stats row + Duolingo streak widget + menu list)
+- [x] Order history page (border-l-4 status color)
+
 **Sprint 6 — Pre-launch**
 - [ ] Soft launch ke customer existing (10-20 orang)
 - [ ] Bug fixing
@@ -975,5 +991,5 @@ PC Windows pull + run Docker (sebagai "production" lokal)
 
 ---
 
-*Last updated: Design System defined — siap UI/UX revamp*
-*Next milestone: UI/UX Revamp Batch 1 — Foundation (design tokens + splash + login)*
+*Last updated: UI/UX Revamp Complete — semua halaman customer redesigned*
+*Next milestone: Sprint 6 — Pre-launch (Cloudflare Tunnel + PC server setup + soft launch)*
